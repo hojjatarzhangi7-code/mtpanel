@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>MTPanel</title>
+<link rel="stylesheet" href="__BASE__/static/style.css?v=__VER__">
+<script>
+window.BASE = "__BASE__";
+try { if (localStorage.getItem("mtp_lang") === "en") { document.documentElement.lang = "en"; document.documentElement.dir = "ltr"; } } catch (e) {}
+</script>
+</head>
+<body>
+<div id="login" class="login hidden">
+  <div class="login-card">
+    <div class="login-top"><button type="button" class="btn ghost sm lang-toggle">English</button></div>
+    <form id="loginForm">
+      <div class="brand big"><span class="logo">✈</span> MTPanel</div>
+      <label><span data-i18n="login_user">نام کاربری</span><input name="username" autocomplete="username" required dir="ltr"></label>
+      <label><span data-i18n="login_pass">رمز عبور</span><input name="password" type="password" autocomplete="current-password" required dir="ltr"></label>
+      <button class="btn primary block" data-i18n="login_btn">ورود</button>
+      <div class="err" id="loginErr"></div>
+    </form>
+  </div>
+</div>
+
+<div id="app" class="hidden">
+  <header class="top">
+    <div class="brand"><span class="logo">✈</span> <span id="title">MTPanel</span></div>
+    <nav class="tabs">
+      <a data-tab="servers" class="active" data-i18n="tab_servers">سرورها</a>
+      <a data-tab="links" data-i18n="tab_links">لینک‌ها</a>
+      <a data-tab="ads" data-i18n="tab_ads">تبلیغات</a>
+      <a data-tab="settings" data-i18n="tab_settings">تنظیمات</a>
+    </nav>
+    <button type="button" class="btn ghost sm lang-toggle">English</button>
+    <button class="btn ghost sm" id="logout" data-i18n="logout">خروج</button>
+  </header>
+
+  <main>
+    <!-- Servers -->
+    <section id="tab-servers">
+      <div class="stats" id="stats"></div>
+      <p class="hint" style="margin:8px 0 0" data-i18n="users_hint"></p>
+      <div class="toolbar" style="margin-top:16px">
+        <div class="grow muted" data-i18n="servers_hint">وقتی IP سروری فیلتر شد، روی «تعویض IP» بزنید.</div>
+        <button class="btn primary" id="addNode" data-i18n="add_server_btn">+ افزودن سرور</button>
+      </div>
+      <div id="nodeList" class="grid"></div>
+    </section>
+
+    <!-- Links -->
+    <section id="tab-links" class="hidden">
+      <div class="toolbar">
+        <input id="q" placeholder="جستجو…" data-i18n-ph="search_ph" class="grow">
+        <button class="btn" id="publicBtn" data-i18n="public_page_btn">صفحه‌ی عمومی</button>
+        <button class="btn primary" id="addLink" data-i18n="new_link_btn">+ لینک جدید</button>
+      </div>
+      <div id="linkList" class="list"></div>
+    </section>
+
+    <!-- Ads -->
+    <section id="tab-ads" class="hidden">
+      <div class="card ads-head">
+        <label class="switch big"><input type="checkbox" id="adsEnabled"><span></span></label>
+        <div class="grow"><b data-i18n="ads_show">نمایش تبلیغ (کانال اسپانسر)</b><div class="hint" style="margin:0" data-i18n="ads_off_hint">خاموش = هیچ کانالی روی هیچ سروری نمایش داده نمی‌شود.</div></div>
+      </div>
+
+      <h3 data-i18n="ads_now">الان روی هر سرور چه نمایش داده می‌شود؟</h3>
+      <div id="adsNodes" class="grid"></div>
+
+      <div class="toolbar" style="margin-top:22px"><h3 class="grow" style="margin:0" data-i18n="ads_sched">زمان‌بندی تبلیغ</h3>
+        <button class="btn primary" id="addCamp" data-i18n="add_campaign_btn">+ تبلیغ زمان‌دار</button></div>
+      <div id="adsCamps" class="list"></div>
+
+      <div class="toolbar" style="margin-top:22px"><h3 class="grow" style="margin:0" data-i18n="tags_title">تگ‌ها / کانال‌ها</h3>
+        <button class="btn" id="addTag" data-i18n="add_tag_btn">+ افزودن تگ</button></div>
+      <div id="adsTags" class="list"></div>
+      <details class="card help" style="margin-top:14px"><summary data-i18n="tag_help_summary">تگ را از کجا بگیرم؟</summary>
+        <ol>
+          <li data-i18n-html="tag_help_1"></li>
+          <li data-i18n-html="tag_help_2"></li>
+          <li data-i18n-html="tag_help_3"></li>
+          <li data-i18n-html="tag_help_4"></li>
+        </ol>
+        <p class="hint" data-i18n="tag_help_note"></p>
+      </details>
+    </section>
+
+    <!-- Settings -->
+    <section id="tab-settings" class="hidden">
+      <div class="card form" id="accessCard"></div>
+      <form id="settingsForm" class="card form">
+        <h3 data-i18n="general_settings">تنظیمات عمومی</h3>
+        <label><span data-i18n="title_label">عنوان (روی صفحه‌ی عمومی هم نمایش داده می‌شود)</span><input name="panel_title"></label>
+        <label class="chip" style="width:fit-content"><input type="checkbox" name="public_enabled"> <span data-i18n="public_enabled">صفحه‌ی عمومی لینک‌ها فعال باشد</span></label>
+        <p class="hint" id="publicUrl"></p>
+        <label><span data-i18n="public_addr_label">آدرس صفحه‌ی عمومی (اختیاری)</span><input name="public_base_url" dir="ltr" placeholder="https://links.example.com:2053"></label>
+        <p class="hint" data-i18n="public_addr_hint"></p>
+        <label><span data-i18n="public_lang_label">زبان صفحه‌ی عمومی</span><select name="public_lang"><option value="fa">فارسی</option><option value="en">English</option></select></label>
+        <button class="btn primary" data-i18n="save">ذخیره</button>
+        <button type="button" class="btn" id="rotatePublic" data-i18n="rotate_public">تغییر آدرس صفحه‌ی عمومی</button>
+        <button type="button" class="btn ghost" id="rerunWizard" data-i18n="rerun_wizard">اجرای دوباره‌ی راه‌اندازی اولیه</button>
+      </form>
+      <form id="cfForm" class="card form">
+        <h3 data-i18n="cf_title">Cloudflare (تعویض IP بدون عوض شدن لینک‌ها)</h3>
+        <p class="hint" style="margin:0 0 12px" data-i18n-html="cf_hint"></p>
+        <div id="cfState" class="hint"></div>
+        <label>API Token<input name="cf_token" dir="ltr" type="password" data-i18n-ph="cf_token_ph"></label>
+        <button class="btn primary" data-i18n="cf_save">ذخیره توکن</button>
+        <button type="button" class="btn danger" id="cfDel" data-i18n="cf_delete">حذف توکن</button>
+      </form>
+      <form id="pwForm" class="card form">
+        <h3 data-i18n="admin_account">حساب ادمین</h3>
+        <label><span data-i18n="new_username">نام کاربری جدید (اختیاری)</span><input name="username" dir="ltr"></label>
+        <label><span data-i18n="current_pass">رمز فعلی</span><input name="current" type="password" required dir="ltr"></label>
+        <label><span data-i18n="new_pass">رمز جدید</span><input name="new" type="password" minlength="8" required dir="ltr"></label>
+        <button class="btn primary" data-i18n="change_pass">تغییر رمز</button>
+      </form>
+      <div class="card form">
+        <h3 data-i18n="backup_title">پشتیبان‌گیری</h3>
+        <a class="btn" id="backupBtn" data-i18n="backup_btn">دانلود بکاپ دیتابیس</a>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- First-run setup wizard -->
+<div id="wizard" class="wizard hidden">
+  <div class="wiz-card">
+    <div class="wiz-lang"><button type="button" class="btn ghost sm lang-toggle">English</button></div>
+    <div class="wiz-steps" id="wizSteps"></div>
+    <div id="wizBody"></div>
+  </div>
+</div>
+<!-- Shown while the panel restarts on a new address -->
+<div id="restarting" class="restarting hidden">
+  <div class="wiz-card" style="text-align:center">
+    <div class="spinner"></div>
+    <h3 id="rsTitle" data-i18n="restarting_title">پنل در حال راه‌اندازی دوباره است…</h3>
+    <p class="hint" id="rsText"></p>
+    <div class="mono" id="rsUrl"></div>
+    <a class="btn primary" id="rsGo" data-i18n="go_new">رفتن به آدرس جدید</a>
+  </div>
+</div>
+<div id="modal" class="modal hidden"><div class="modal-card"><div id="modalBody"></div></div></div>
+<div id="toast" class="toast hidden"></div>
+<script src="__BASE__/static/i18n.js?v=__VER__"></script>
+<script src="__BASE__/static/app.js?v=__VER__"></script>
+</body>
+</html>
